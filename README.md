@@ -1,7 +1,9 @@
 # SenSe
 Repository for data collection tools for the SenSe-project at HVL
 
-## Usage
+## Data Collection Tool (DCT)
+
+### Usage
     python3 path/to/main.py (MAC address of sensor) (data type(s))
     
 Data type flags:
@@ -20,7 +22,9 @@ Data type flags:
 
 Note: syntax is currently subject to heavy change 
     
-### Example
+#### Example
     python3 main.py 00:AA:CC:FF:00:11 --ECG --PPI
 
+## Zynq 
 
+Work in progress...
