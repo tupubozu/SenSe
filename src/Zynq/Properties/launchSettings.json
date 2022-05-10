@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Zynq": {
+      "commandName": "Project",
+      "commandLineArgs": "--source=\"C:\\Users\\Kay\" --remote=\"kaybo@192.168.10:/home/kaybo\" "
+    }
+  }
+}

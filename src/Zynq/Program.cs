@@ -91,7 +91,7 @@ class Program
             {
                 string fileName = Path.GetFileName(filePath);
 
-                using var sourceStream = new BufferedStream(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read));
+                using var sourceStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
                 using var remoteStream = client.Create(fileName);
 
                 await sourceStream.CopyToAsync(remoteStream);
@@ -99,7 +99,7 @@ class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            Console.WriteLine("Error: {0}", ex.Message);
         }
     }
 
@@ -114,16 +114,24 @@ class Program
 
         string[] sshDirFiles = Directory.GetFiles(sshKeyPathBase);
 
-        string[] sshSpesialFiles = { "authorized_keys", "known_hosts", "config" };
+        string[] sshSpesialFileNames = { "authorized_keys", "known_hosts", "config" };
 
         var sshKeyFiles =
-            from file in sshDirFiles
-            where !Path.HasExtension(file) && !sshSpesialFiles.Contains(file)
-            select new BufferedStream(new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read));
+            from filePath in sshDirFiles
+            where !Path.HasExtension(filePath) && !sshSpesialFileNames.Contains(Path.GetFileName(filePath))
+            select new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
 
-        var pkFile =
-            from file in sshKeyFiles
-            select new PrivateKeyFile(file);
+        var pkFile = new List<PrivateKeyFile>();
+
+        foreach (var keyFile in sshKeyFiles)
+            try
+            {
+                pkFile.Add(new PrivateKeyFile(keyFile));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: {0}: {1}", keyFile.Name, ex.Message);
+            }
 
         return pkFile.ToArray();
     }
@@ -136,11 +144,11 @@ class Program
         foreach (string arg in args)
             try
             {
-                if (arg.StartsWith("--remote=") && !string.IsNullOrEmpty(r))
+                if (arg.StartsWith("--remote=") && string.IsNullOrEmpty(r))
                     r = arg.Substring(arg.IndexOf('=') + 1).Trim(' ', '\'', '\"', '\n', '\t');
-                else if (arg.StartsWith("--source=") && !string.IsNullOrEmpty(s))
+                else if (arg.StartsWith("--source=") && string.IsNullOrEmpty(s))
                     s = arg.Substring(arg.IndexOf('=') + 1).Trim(' ', '\'', '\"', '\n', '\t');
-                else if (arg.StartsWith("--key=") && !string.IsNullOrEmpty(k))
+                else if (arg.StartsWith("--key=") && string.IsNullOrEmpty(k))
                     k = arg.Substring(arg.IndexOf('=') + 1).Trim(' ', '\'', '\"', '\n', '\t');
                 else
                 {
