@@ -32,7 +32,7 @@ class Program
             );
         }
     }
-    async static Task Main(string[] args)
+    static async Task Main(string[] args)
     {
         if (ParseArgs(args, out string remote, out string source, out string keyPath)) return;
 
@@ -45,6 +45,13 @@ class Program
         if (string.IsNullOrEmpty(source) || !Directory.Exists(source))
         {
             Console.WriteLine("Invalid source path");
+            return;
+        }
+
+        string[] sourceFiles = Directory.GetFiles(source);
+        if (sourceFiles.Length == 0)
+        {
+            Console.WriteLine("No files to sync in source directory");
             return;
         }
 
@@ -63,20 +70,37 @@ class Program
         else
         {
             if (File.Exists(keyPath))
-                keys = new PrivateKeyFile[] { new PrivateKeyFile(keyPath)};
+                keys = new PrivateKeyFile[] { new PrivateKeyFile(keyPath) };
             else
             {
                 Console.WriteLine("Key file does not exist");
-                return; 
+                return;
             }
         }
 
-        RemoteInfo rInfo = RemoteInfo.Parse(remote);
+        try
+        {
+            RemoteInfo rInfo = RemoteInfo.Parse(remote);
 
-        using SftpClient client = new SftpClient(rInfo.Uri, rInfo.User, keys);
+            using SftpClient client = new SftpClient(rInfo.Uri, rInfo.User, keys);
 
-        client.Connect();
-        client.ChangeDirectory(rInfo.Path);
+            client.Connect();
+            client.ChangeDirectory(rInfo.Path);
+
+            foreach (string filePath in sourceFiles)
+            {
+                string fileName = Path.GetFileName(filePath);
+
+                using var sourceStream = new BufferedStream(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read));
+                using var remoteStream = client.Create(fileName);
+
+                await sourceStream.CopyToAsync(remoteStream);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
     }
 
     private static PrivateKeyFile[]? GetKeyFiles()
