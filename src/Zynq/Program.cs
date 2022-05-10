@@ -16,7 +16,7 @@ class Program
         public string Uri { get; init; }
         public string Path { get; init; }
 
-        private RemoteInfo(string user, string uri, string path) 
+        private RemoteInfo(string user, string uri, string path)
         {
             User = user;
             Uri = uri;
@@ -26,9 +26,9 @@ class Program
         public static RemoteInfo Parse(string a)
         {
             return new RemoteInfo(
-                user : a.Substring(0, a.IndexOf('@')),
-                uri : a.Substring(a.IndexOf('@') + 1, a.LastIndexOf(':') - (a.IndexOf('@') + 1)),
-                path : a.Substring(a.LastIndexOf(':') + 1)
+                user: a.Substring(0, a.IndexOf('@')),
+                uri: a.Substring(a.IndexOf('@') + 1, a.LastIndexOf(':') - (a.IndexOf('@') + 1)),
+                path: a.Substring(a.LastIndexOf(':') + 1)
             );
         }
     }
@@ -121,7 +121,7 @@ class Program
             where !Path.HasExtension(file) && !sshSpesialFiles.Contains(file)
             select new BufferedStream(new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read));
 
-        var pkFile = 
+        var pkFile =
             from file in sshKeyFiles
             select new PrivateKeyFile(file);
 
