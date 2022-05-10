@@ -26,9 +26,9 @@ class Program
         public static RemoteInfo Parse(string a)
         {
             return new RemoteInfo(
-                user: a.Substring(0, a.IndexOf('@')),
-                uri: a.Substring(a.IndexOf('@') + 1, a.LastIndexOf(':') - (a.IndexOf('@') + 1)),
-                path: a.Substring(a.LastIndexOf(':') + 1)
+                user: a[..a.IndexOf('@')],
+                uri: a[(a.IndexOf('@') + 1)..a.LastIndexOf(':')],
+                path: a[(a.LastIndexOf(':') + 1)..]
             );
         }
     }
