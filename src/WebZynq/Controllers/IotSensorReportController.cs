@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebZynq.Controllers
 {
@@ -8,16 +9,26 @@ namespace WebZynq.Controllers
     public class IotSensorReportController : ControllerBase
     {
         private readonly ILogger<IotSensorReportController> _logger;
+        private readonly DbContext? _dbContext;
 
-        public IotSensorReportController(ILogger<IotSensorReportController> logger)
+        public IotSensorReportController(ILogger<IotSensorReportController> logger, IServiceProvider provider)
         {
             _logger = logger;
+            _dbContext = provider.GetService<DbContext>();
         }
 
-        [HttpPost("{id}")]
-        public async Task NewReport(Guid id)
+        [HttpPost]
+        public async Task<IActionResult> PostReport(IotSensorReport report, HttpContext context)
         {
-            return;
+            try{
+                await _dbContext!.AddAsync(report);
+                return this.Created("/", report);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Creation of sensor report failed: {report}", report);
+                return this.UnprocessableEntity();
+            }
         }
     }
 }

@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using WebZynq.Database;
+
 namespace WebZynq
 {
     public class Program
@@ -12,6 +15,7 @@ namespace WebZynq
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddDbContext<IotDataContext>(options => options.UseNpgsql(builder.Configuration["postgres"]));
 
             var app = builder.Build();
 
