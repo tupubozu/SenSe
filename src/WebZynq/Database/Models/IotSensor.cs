@@ -1,4 +1,4 @@
-﻿namespace WebZynq
+﻿namespace WebZynq.Database.Models
 {
     public class IotSensor
     {
