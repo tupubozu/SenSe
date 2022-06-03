@@ -16,7 +16,7 @@ class Program
         public string Uri { get; init; }
         public string Path { get; init; }
 
-        private RemoteInfo(string user, string uri, string path) 
+        private RemoteInfo(string user, string uri, string path)
         {
             User = user;
             Uri = uri;
@@ -26,13 +26,13 @@ class Program
         public static RemoteInfo Parse(string a)
         {
             return new RemoteInfo(
-                user : a.Substring(0, a.IndexOf('@')),
-                uri : a.Substring(a.IndexOf('@') + 1, a.LastIndexOf(':') - (a.IndexOf('@') + 1)),
-                path : a.Substring(a.LastIndexOf(':') + 1)
+                user: a[..a.IndexOf('@')],
+                uri: a[(a.IndexOf('@') + 1)..a.LastIndexOf(':')],
+                path: a[(a.LastIndexOf(':') + 1)..]
             );
         }
     }
-    async static Task Main(string[] args)
+    static async Task Main(string[] args)
     {
         if (ParseArgs(args, out string remote, out string source, out string keyPath)) return;
 
@@ -45,6 +45,13 @@ class Program
         if (string.IsNullOrEmpty(source) || !Directory.Exists(source))
         {
             Console.WriteLine("Invalid source path");
+            return;
+        }
+
+        string[] sourceFiles = Directory.GetFiles(source);
+        if (sourceFiles.Length == 0)
+        {
+            Console.WriteLine("No files to sync in source directory");
             return;
         }
 
@@ -63,20 +70,37 @@ class Program
         else
         {
             if (File.Exists(keyPath))
-                keys = new PrivateKeyFile[] { new PrivateKeyFile(keyPath)};
+                keys = new PrivateKeyFile[] { new PrivateKeyFile(keyPath) };
             else
             {
                 Console.WriteLine("Key file does not exist");
-                return; 
+                return;
             }
         }
 
-        RemoteInfo rInfo = RemoteInfo.Parse(remote);
+        try
+        {
+            RemoteInfo rInfo = RemoteInfo.Parse(remote);
 
-        using SftpClient client = new SftpClient(rInfo.Uri, rInfo.User, keys);
+            using SftpClient client = new SftpClient(rInfo.Uri, rInfo.User, keys);
 
-        client.Connect();
-        client.ChangeDirectory(rInfo.Path);
+            client.Connect();
+            client.ChangeDirectory(rInfo.Path);
+
+            foreach (string filePath in sourceFiles)
+            {
+                string fileName = Path.GetFileName(filePath);
+
+                using var sourceStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                using var remoteStream = client.Create(fileName);
+
+                await sourceStream.CopyToAsync(remoteStream);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: {0}", ex.Message);
+        }
     }
 
     private static PrivateKeyFile[]? GetKeyFiles()
@@ -90,16 +114,24 @@ class Program
 
         string[] sshDirFiles = Directory.GetFiles(sshKeyPathBase);
 
-        string[] sshSpesialFiles = { "authorized_keys", "known_hosts", "config" };
+        string[] sshSpesialFileNames = { "authorized_keys", "known_hosts", "config" };
 
         var sshKeyFiles =
-            from file in sshDirFiles
-            where !Path.HasExtension(file) && !sshSpesialFiles.Contains(file)
-            select new BufferedStream(new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read));
+            from filePath in sshDirFiles
+            where !Path.HasExtension(filePath) && !sshSpesialFileNames.Contains(Path.GetFileName(filePath))
+            select new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
 
-        var pkFile = 
-            from file in sshKeyFiles
-            select new PrivateKeyFile(file);
+        var pkFile = new List<PrivateKeyFile>();
+
+        foreach (var keyFile in sshKeyFiles)
+            try
+            {
+                pkFile.Add(new PrivateKeyFile(keyFile));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: {0}: {1}", keyFile.Name, ex.Message);
+            }
 
         return pkFile.ToArray();
     }
@@ -112,11 +144,11 @@ class Program
         foreach (string arg in args)
             try
             {
-                if (arg.StartsWith("--remote=") && !string.IsNullOrEmpty(r))
+                if (arg.StartsWith("--remote=") && string.IsNullOrEmpty(r))
                     r = arg.Substring(arg.IndexOf('=') + 1).Trim(' ', '\'', '\"', '\n', '\t');
-                else if (arg.StartsWith("--source=") && !string.IsNullOrEmpty(s))
+                else if (arg.StartsWith("--source=") && string.IsNullOrEmpty(s))
                     s = arg.Substring(arg.IndexOf('=') + 1).Trim(' ', '\'', '\"', '\n', '\t');
-                else if (arg.StartsWith("--key=") && !string.IsNullOrEmpty(k))
+                else if (arg.StartsWith("--key=") && string.IsNullOrEmpty(k))
                     k = arg.Substring(arg.IndexOf('=') + 1).Trim(' ', '\'', '\"', '\n', '\t');
                 else
                 {
