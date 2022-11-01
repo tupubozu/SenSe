@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using WebZynq.Database;
+using WebZynq.Database.Contexts;
 
 namespace WebZynq
 {

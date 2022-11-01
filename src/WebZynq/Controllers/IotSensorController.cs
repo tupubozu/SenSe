@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
+using WebZynq.Database.Models;
 
 namespace WebZynq.Controllers
 {
