@@ -3,12 +3,6 @@
 #include <ArduinoBLE.h>
 #include <SD.h>
 
-#if defined(ARDUINO_ARCH_AVR)
-#include <Arduino_FreeRTOS.h>
-#elif defined(ARDUINO_ARCH_SAM)
-#include <FreeRTOS_SAMD21.h>
-#endif
-
 void setup()
 {
     Serial.begin(115200);
