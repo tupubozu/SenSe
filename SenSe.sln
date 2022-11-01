@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zynq", "src\Zynq\Zynq.cspro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebZynq", "src\WebZynq\WebZynq.csproj", "{FAC3A0AD-F18A-4593-A283-DE35A46EDE7D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenSe.DataCollectionTool", "src\SenSe.DataCollectionTool\SenSe.DataCollectionTool.csproj", "{8AF4A803-D799-4ADD-B1F7-298E24C2140B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{FAC3A0AD-F18A-4593-A283-DE35A46EDE7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAC3A0AD-F18A-4593-A283-DE35A46EDE7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAC3A0AD-F18A-4593-A283-DE35A46EDE7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8AF4A803-D799-4ADD-B1F7-298E24C2140B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AF4A803-D799-4ADD-B1F7-298E24C2140B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AF4A803-D799-4ADD-B1F7-298E24C2140B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AF4A803-D799-4ADD-B1F7-298E24C2140B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -30,6 +36,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{1D87417D-D13C-4D0E-ACCB-6D15D19549DC} = {5BB70384-F90E-4A30-BD55-46A4B95F697E}
 		{FAC3A0AD-F18A-4593-A283-DE35A46EDE7D} = {5BB70384-F90E-4A30-BD55-46A4B95F697E}
+		{8AF4A803-D799-4ADD-B1F7-298E24C2140B} = {5BB70384-F90E-4A30-BD55-46A4B95F697E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4AA2E5DF-289A-43AF-B940-D3F953B741AA}
